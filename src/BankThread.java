@@ -13,10 +13,19 @@ public class BankThread extends Thread{
     }
 
     public void run(){
-        System.out.println("thread running");
-        if(op==1)
-            bankObj.withdraw(acc_id , amount);
-        else
-            bankObj.deposit(acc_id,amount);
+        try{
+            System.out.println("thread running");
+            if(op==1)
+                bankObj.withdraw(acc_id , amount);
+            else if(op==2)
+                bankObj.deposit(acc_id,amount);
+            else if(op==3)
+                System.out.println("Bal for acc id :" + acc_id + " is:" + bankObj.getBal(acc_id));
+        }
+        
+        catch (Exception e){
+
+        }
+
     }
 }
