@@ -1,4 +1,5 @@
 import java.sql.* ;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Bank {
 
@@ -9,6 +10,7 @@ public class Bank {
     int bal;
     String AccUserName;
     String AccId;
+    ReentrantLock l = new ReentrantLock();
 
     public void makeConnection() throws ClassNotFoundException, SQLException {
 
@@ -46,8 +48,10 @@ public class Bank {
         return bal;
     }
 
-      synchronized public void withdraw(int id , double Amt){
+       public void withdraw(int id , double Amt){
+
         try {
+            l.lock();
             double bal = getBal(id);
             System.out.println("curr bal: of acc " + bal + " " + id);
 
@@ -69,10 +73,12 @@ public class Bank {
 
             System.out.println("error in withdraw:" + e);
         }
+        l.unlock();
     }
 
-     synchronized public void deposit(int id , double amt){
+      public void deposit(int id , double amt){
         try {
+            l.lock();
             double bal = getBal(id);
             System.out.println("curr bal: of acc " + bal + " " + id);
 
@@ -95,5 +101,7 @@ public class Bank {
         catch (Exception e){
             System.out.println("error in deposit " + e);
         }
+
+        l.unlock();
     }
 }
