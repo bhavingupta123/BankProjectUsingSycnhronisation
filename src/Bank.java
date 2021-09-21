@@ -1,3 +1,4 @@
+import java.security.cert.TrustAnchor;
 import java.sql.* ;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -16,6 +17,7 @@ public class Bank {
 
         Class.forName("com.mysql.jdbc.Driver");
         con=DriverManager.getConnection(url , user ,pass);
+        con.setAutoCommit(false);
     }
 
     public void SelectAllAcc() throws SQLException {
@@ -35,16 +37,16 @@ public class Bank {
     }
 
      public double getBal(int id) throws SQLException, ClassNotFoundException {
-
+        l.lock();
         makeConnection();
         Statement stmt=con.createStatement();
-        ResultSet rs=stmt.executeQuery("select bal from users where AccNo = " + id);
+        ResultSet rs=stmt.executeQuery("select bal from users where AccNo = " + id + " FOR UPDATE ");
         double bal =0 ;
 
         while (rs.next()){
             bal = rs.getDouble("bal");
         }
-
+        l.unlock();
         return bal;
     }
 
@@ -58,19 +60,20 @@ public class Bank {
             if(Amt >= bal - 50)
                 System.out.println("sorry");
             else {
-                Thread.sleep(10000);
+                //Thread.sleep(1000);
                 bal = bal - Amt;
                 System.out.println("updated bal after withdrawl:" + bal);
                 String QUERY = "UPDATE users " + "SET bal =  " + bal + " WHERE AccNo =" + id;
                 Statement stmt=con.createStatement();
                 stmt.executeUpdate(QUERY);
                 System.out.println("Done");
+                con.commit();
+                con.setAutoCommit(true);
                 con.close();
                 System.out.println("------------------------------------------------------------------------------");
             }
         }
         catch (Exception e){
-
             System.out.println("error in withdraw:" + e);
         }
         l.unlock();
@@ -79,6 +82,7 @@ public class Bank {
       public void deposit(int id , double amt){
         try {
             l.lock();
+            //con.setAutoCommit(false);
             double bal = getBal(id);
             System.out.println("curr bal: of acc " + bal + " " + id);
 
@@ -93,6 +97,8 @@ public class Bank {
                 Statement stmt=con.createStatement();
                 stmt.executeUpdate(QUERY);
                 System.out.println("Done");
+                con.commit();
+                con.setAutoCommit(true);
                 con.close();
                 System.out.println("------------------------------------------------------------------------------");
             }

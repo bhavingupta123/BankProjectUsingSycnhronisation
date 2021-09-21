@@ -1,4 +1,4 @@
-public class BankThread extends Thread{
+public class BankThread implements Runnable{
 
     Bank bankObj;
     int op;
@@ -20,9 +20,9 @@ public class BankThread extends Thread{
             else if(op==2)
                 bankObj.deposit(acc_id,amount);
             else if(op==3)
-                System.out.println("Bal for acc id :" + acc_id + " is:" + bankObj.getBal(acc_id));
+                System.out.println("Bal for acc id :" + acc_id + " is:" + bankObj.getBal(acc_id) + "\n" + "--------------------------------------------------");
         }
-        
+
         catch (Exception e){
 
         }
